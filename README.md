@@ -88,13 +88,6 @@ Sample images from the supported dataset can be added in the `sample_images/` fo
 - Firebase
 - SQLite
 
-## Hardware and IoT (Planned Integration)
-- Arduino
-- Raspberry Pi
-- IoT Sensors
-
----
-
 # Project Structure
 
 ```text
