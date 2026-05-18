@@ -1,1 +1,1124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AgriDetect AI | Crop Disease Scanner</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
+        :root {
+            --green-dark: #0a3d1f;
+            --green-mid: #1a6b3a;
+            --green-bright: #2d9e5f;
+            --green-light: #4cc97d;
+            --green-pale: #d4f5e2;
+            --cream: #f7f4ef;
+            --cream-dark: #ede9e1;
+            --brown: #5c3d1e;
+            --soil: #8b6340;
+            --text-dark: #1a1a1a;
+            --text-mid: #4a4a4a;
+            --text-light: #7a7a7a;
+            --white: #ffffff;
+            --shadow-sm: 0 2px 12px rgba(10, 61, 31, 0.08);
+            --shadow-md: 0 8px 32px rgba(10, 61, 31, 0.14);
+            --shadow-lg: 0 20px 60px rgba(10, 61, 31, 0.18);
+        }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--cream);
+            color: var(--text-dark);
+            overflow-x: hidden;
+        }
+
+        h1, h2, h3, h4, .brand { font-family: 'Syne', sans-serif; }
+
+        /* ─── NAV ─── */
+        nav {
+            position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+            background: rgba(247, 244, 239, 0.88);
+            backdrop-filter: blur(16px);
+            border-bottom: 1px solid rgba(45, 158, 95, 0.15);
+            padding: 0 2rem;
+            height: 64px;
+            display: flex; align-items: center; justify-content: space-between;
+        }
+
+        .nav-brand {
+            display: flex; align-items: center; gap: 10px;
+            font-family: 'Syne', sans-serif; font-weight: 800;
+            font-size: 1.25rem; color: var(--green-dark);
+            text-decoration: none;
+        }
+
+        .nav-brand .leaf-icon {
+            width: 32px; height: 32px;
+            background: var(--green-dark);
+            border-radius: 50% 50% 50% 0;
+            transform: rotate(-45deg);
+            display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .nav-brand .leaf-icon::after {
+            content: '';
+            width: 10px; height: 10px;
+            background: var(--green-light);
+            border-radius: 50%;
+            transform: rotate(45deg);
+        }
+
+        .nav-links { display: flex; align-items: center; gap: 2rem; }
+
+        .nav-links a {
+            font-size: 0.9rem; font-weight: 500; color: var(--text-mid);
+            text-decoration: none; transition: color 0.2s;
+        }
+        .nav-links a:hover { color: var(--green-dark); }
+
+        .nav-cta {
+            background: var(--green-dark) !important;
+            color: var(--white) !important;
+            padding: 8px 20px; border-radius: 8px;
+            font-weight: 500; font-size: 0.875rem;
+            transition: background 0.2s, transform 0.15s !important;
+        }
+        .nav-cta:hover { background: var(--green-mid) !important; transform: translateY(-1px); }
+
+        .cibrc-badge {
+            display: flex; align-items: center; gap: 6px;
+            background: var(--green-pale); color: var(--green-dark);
+            padding: 5px 12px; border-radius: 20px;
+            font-size: 0.78rem; font-weight: 500; border: 1px solid rgba(45,158,95,0.3);
+        }
+
+        /* ─── HERO ─── */
+        #home {
+            min-height: 100vh;
+            padding-top: 64px;
+            position: relative;
+            overflow: hidden;
+            display: flex; flex-direction: column;
+        }
+
+        .hero-bg {
+            position: absolute; inset: 0;
+            background:
+                radial-gradient(ellipse 60% 50% at 70% 50%, rgba(45,158,95,0.12) 0%, transparent 70%),
+                radial-gradient(ellipse 40% 60% at 10% 80%, rgba(10,61,31,0.08) 0%, transparent 60%);
+        }
+
+        .hero-pattern {
+            position: absolute; inset: 0; opacity: 0.04;
+            background-image: repeating-linear-gradient(
+                0deg, transparent, transparent 39px,
+                var(--green-dark) 39px, var(--green-dark) 40px
+            ),
+            repeating-linear-gradient(
+                90deg, transparent, transparent 39px,
+                var(--green-dark) 39px, var(--green-dark) 40px
+            );
+        }
+
+        .hero-inner {
+            position: relative; z-index: 2;
+            max-width: 1200px; margin: 0 auto;
+            padding: 5rem 2rem 3rem;
+            display: grid; grid-template-columns: 1fr 1fr;
+            gap: 4rem; align-items: center;
+        }
+
+        .hero-tag {
+            display: inline-flex; align-items: center; gap: 8px;
+            background: var(--green-pale); color: var(--green-dark);
+            padding: 6px 14px; border-radius: 20px;
+            font-size: 0.8rem; font-weight: 500; letter-spacing: 0.04em;
+            border: 1px solid rgba(45,158,95,0.3); margin-bottom: 1.5rem;
+            animation: fadeUp 0.7s ease both;
+        }
+
+        .hero-tag .dot { width: 6px; height: 6px; background: var(--green-bright); border-radius: 50%; animation: pulse 2s infinite; }
+
+        @keyframes pulse { 0%,100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.5; transform: scale(1.4); } }
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        .hero-title {
+            font-size: clamp(2.8rem, 5vw, 4.2rem);
+            font-weight: 800; line-height: 1.05;
+            color: var(--green-dark); margin-bottom: 1.5rem;
+            animation: fadeUp 0.7s 0.1s ease both;
+        }
+
+        .hero-title .accent {
+            color: var(--green-bright);
+            position: relative; display: inline-block;
+        }
+
+        .hero-title .accent::after {
+            content: '';
+            position: absolute; bottom: 4px; left: 0; right: 0;
+            height: 6px; background: var(--green-pale);
+            z-index: -1; border-radius: 4px;
+        }
+
+        .hero-desc {
+            font-size: 1.1rem; line-height: 1.75;
+            color: var(--text-mid); margin-bottom: 2.5rem;
+            animation: fadeUp 0.7s 0.2s ease both;
+        }
+
+        .hero-actions {
+            display: flex; gap: 1rem; flex-wrap: wrap;
+            animation: fadeUp 0.7s 0.3s ease both;
+        }
+
+        .btn-primary {
+            display: inline-flex; align-items: center; gap: 8px;
+            background: var(--green-dark); color: var(--white);
+            padding: 14px 28px; border-radius: 12px;
+            font-family: 'Syne', sans-serif; font-weight: 600;
+            font-size: 0.95rem; text-decoration: none;
+            transition: all 0.2s; border: none; cursor: pointer;
+            box-shadow: 0 4px 20px rgba(10,61,31,0.25);
+        }
+        .btn-primary:hover { background: var(--green-mid); transform: translateY(-2px); box-shadow: 0 8px 28px rgba(10,61,31,0.3); }
+
+        .btn-secondary {
+            display: inline-flex; align-items: center; gap: 8px;
+            background: transparent; color: var(--green-dark);
+            padding: 14px 28px; border-radius: 12px;
+            font-family: 'Syne', sans-serif; font-weight: 600;
+            font-size: 0.95rem; text-decoration: none;
+            transition: all 0.2s; border: 1.5px solid var(--green-dark); cursor: pointer;
+        }
+        .btn-secondary:hover { background: var(--green-pale); transform: translateY(-2px); }
+
+        .hero-stats {
+            display: flex; gap: 2.5rem; margin-top: 3rem;
+            padding-top: 2.5rem; border-top: 1px solid var(--cream-dark);
+            animation: fadeUp 0.7s 0.4s ease both;
+        }
+
+        .stat-item { display: flex; flex-direction: column; gap: 4px; }
+        .stat-num { font-family: 'Syne', sans-serif; font-size: 1.8rem; font-weight: 800; color: var(--green-dark); }
+        .stat-label { font-size: 0.8rem; color: var(--text-light); letter-spacing: 0.04em; }
+
+        /* Hero visual */
+        .hero-visual {
+            position: relative; animation: fadeIn 1s 0.5s ease both;
+        }
+
+        .phone-mockup {
+            background: var(--white);
+            border-radius: 24px;
+            box-shadow: var(--shadow-lg);
+            padding: 1.5rem;
+            position: relative;
+            border: 1.5px solid var(--cream-dark);
+        }
+
+        .phone-mockup::before {
+            content: '';
+            position: absolute; top: -20px; right: -20px;
+            width: 140px; height: 140px;
+            background: var(--green-pale);
+            border-radius: 50%; z-index: -1;
+        }
+
+        .phone-mockup::after {
+            content: '';
+            position: absolute; bottom: -30px; left: -30px;
+            width: 100px; height: 100px;
+            background: var(--cream-dark);
+            border-radius: 50%; z-index: -1;
+        }
+
+        .mockup-header {
+            display: flex; align-items: center; gap: 10px;
+            margin-bottom: 1rem; padding-bottom: 1rem;
+            border-bottom: 1px solid var(--cream-dark);
+        }
+
+        .mockup-dot { width: 10px; height: 10px; border-radius: 50%; }
+
+        .mockup-leaf-preview {
+            background: linear-gradient(135deg, #1a6b3a20, #4cc97d15);
+            border: 2px dashed rgba(45,158,95,0.3);
+            border-radius: 16px;
+            height: 160px;
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            margin-bottom: 1.25rem; gap: 8px;
+            position: relative; overflow: hidden;
+        }
+
+        .mockup-leaf-icon {
+            font-size: 2.5rem; color: var(--green-bright);
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+
+        .mockup-result {
+            background: var(--green-pale);
+            border-radius: 12px; padding: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .mockup-result-label { font-size: 0.7rem; color: var(--green-mid); font-weight: 500; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 4px; }
+        .mockup-result-disease { font-family: 'Syne', sans-serif; font-size: 1.1rem; font-weight: 700; color: var(--green-dark); }
+
+        .mockup-confidence {
+            display: flex; align-items: center; gap: 10px;
+            font-size: 0.8rem; color: var(--text-mid); margin-bottom: 1rem;
+        }
+
+        .conf-bar {
+            flex: 1; height: 6px; background: var(--cream-dark);
+            border-radius: 6px; overflow: hidden;
+        }
+
+        .conf-fill {
+            height: 100%; width: 94%;
+            background: linear-gradient(90deg, var(--green-mid), var(--green-light));
+            border-radius: 6px;
+            animation: growBar 1.5s 1s ease both;
+        }
+
+        @keyframes growBar { from { width: 0; } to { width: 94%; } }
+
+        .mockup-remedy {
+            background: #e8f4fd; border-radius: 10px; padding: 0.875rem;
+            border-left: 3px solid #3b82f6;
+        }
+
+        .mockup-remedy-label { font-size: 0.7rem; color: #2563eb; font-weight: 500; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 4px; }
+        .mockup-remedy-text { font-size: 0.82rem; color: #1e3a5f; line-height: 1.5; }
+
+        /* ─── FEATURES ─── */
+        #features {
+            padding: 7rem 2rem;
+            max-width: 1200px; margin: 0 auto;
+        }
+
+        .section-header { text-align: center; margin-bottom: 4rem; }
+
+        .section-tag {
+            display: inline-block;
+            background: var(--green-pale); color: var(--green-mid);
+            padding: 5px 14px; border-radius: 20px;
+            font-size: 0.78rem; font-weight: 500; letter-spacing: 0.06em;
+            text-transform: uppercase; margin-bottom: 1rem;
+        }
+
+        .section-title {
+            font-size: clamp(2rem, 4vw, 3rem);
+            font-weight: 800; color: var(--green-dark);
+            line-height: 1.15; margin-bottom: 1rem;
+        }
+
+        .section-desc { font-size: 1.05rem; color: var(--text-mid); max-width: 600px; margin: 0 auto; line-height: 1.7; }
+
+        .features-grid {
+            display: grid; grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+        }
+
+        .feature-card {
+            background: var(--white); border-radius: 20px;
+            padding: 2rem; border: 1px solid var(--cream-dark);
+            transition: all 0.3s; position: relative; overflow: hidden;
+        }
+
+        .feature-card::before {
+            content: '';
+            position: absolute; top: 0; left: 0; right: 0;
+            height: 3px; background: linear-gradient(90deg, var(--green-bright), var(--green-light));
+            transform: scaleX(0); transform-origin: left;
+            transition: transform 0.3s;
+        }
+
+        .feature-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-md); }
+        .feature-card:hover::before { transform: scaleX(1); }
+
+        .feature-icon-wrap {
+            width: 52px; height: 52px;
+            background: var(--green-pale); border-radius: 14px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.4rem; margin-bottom: 1.25rem; color: var(--green-dark);
+            transition: background 0.3s;
+        }
+
+        .feature-card:hover .feature-icon-wrap { background: var(--green-dark); color: var(--white); }
+
+        .feature-title { font-family: 'Syne', sans-serif; font-size: 1.1rem; font-weight: 700; color: var(--green-dark); margin-bottom: 0.5rem; }
+        .feature-desc { font-size: 0.9rem; color: var(--text-mid); line-height: 1.65; }
+
+        /* ─── HOW IT WORKS ─── */
+        #how-it-works {
+            background: var(--green-dark);
+            padding: 7rem 2rem;
+            position: relative; overflow: hidden;
+        }
+
+        #how-it-works::before {
+            content: ''; position: absolute;
+            top: -60px; right: -60px;
+            width: 300px; height: 300px;
+            background: rgba(76,201,125,0.06);
+            border-radius: 50%; pointer-events: none;
+        }
+
+        .how-inner { max-width: 1100px; margin: 0 auto; }
+
+        .how-inner .section-tag { background: rgba(76,201,125,0.15); color: var(--green-light); }
+        .how-inner .section-title { color: var(--white); }
+        .how-inner .section-desc { color: rgba(255,255,255,0.65); }
+
+        .steps-grid {
+            display: grid; grid-template-columns: repeat(4, 1fr);
+            gap: 1rem; margin-top: 4rem; position: relative;
+        }
+
+        .steps-grid::before {
+            content: '';
+            position: absolute; top: 30px; left: 12%; right: 12%;
+            height: 1px; background: linear-gradient(90deg, transparent, rgba(76,201,125,0.4), transparent);
+        }
+
+        .step-card {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 20px; padding: 2rem 1.5rem;
+            text-align: center; transition: all 0.3s;
+            position: relative;
+        }
+
+        .step-card:hover {
+            background: rgba(255,255,255,0.09);
+            border-color: rgba(76,201,125,0.4);
+            transform: translateY(-4px);
+        }
+
+        .step-num {
+            width: 52px; height: 52px; border-radius: 50%;
+            background: rgba(76,201,125,0.15);
+            border: 1.5px solid rgba(76,201,125,0.4);
+            display: flex; align-items: center; justify-content: center;
+            font-family: 'Syne', sans-serif; font-weight: 800;
+            font-size: 1.1rem; color: var(--green-light);
+            margin: 0 auto 1.25rem;
+        }
+
+        .step-icon { font-size: 1.5rem; margin-bottom: 1rem; color: var(--green-light); }
+        .step-title { font-family: 'Syne', sans-serif; font-size: 0.95rem; font-weight: 700; color: var(--white); margin-bottom: 0.5rem; }
+        .step-desc { font-size: 0.83rem; color: rgba(255,255,255,0.55); line-height: 1.6; }
+
+        /* ─── CROPS SUPPORTED ─── */
+        #crops {
+            padding: 6rem 2rem; max-width: 1200px; margin: 0 auto;
+        }
+
+        .crops-flex {
+            display: flex; flex-wrap: wrap; gap: 1rem;
+            justify-content: center; margin-top: 3rem;
+        }
+
+        .crop-pill {
+            display: flex; align-items: center; gap: 10px;
+            background: var(--white); border: 1px solid var(--cream-dark);
+            border-radius: 50px; padding: 10px 20px;
+            font-size: 0.9rem; font-weight: 500; color: var(--text-mid);
+            transition: all 0.2s; cursor: default;
+        }
+
+        .crop-pill:hover { background: var(--green-pale); border-color: rgba(45,158,95,0.3); color: var(--green-dark); transform: scale(1.03); }
+
+        .crop-icon { font-size: 1.2rem; }
+
+        /* ─── SCANNER PAGE ─── */
+        #scanner {
+            background: var(--cream);
+            padding: 7rem 2rem 5rem;
+            min-height: 100vh;
+        }
+
+        .scanner-inner { max-width: 1050px; margin: 0 auto; }
+
+        .scanner-grid {
+            display: grid; grid-template-columns: 1fr 1fr;
+            gap: 2rem; margin-top: 3rem;
+        }
+
+        .card {
+            background: var(--white); border-radius: 24px;
+            padding: 2rem; border: 1px solid var(--cream-dark);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .card-title {
+            font-family: 'Syne', sans-serif; font-size: 1.1rem; font-weight: 700;
+            color: var(--green-dark); margin-bottom: 1.5rem;
+            display: flex; align-items: center; gap: 8px;
+        }
+
+        .card-title i { font-size: 0.9rem; color: var(--green-bright); }
+
+        /* Upload Zone */
+        .upload-zone {
+            border: 2px dashed rgba(45,158,95,0.35);
+            border-radius: 18px; padding: 2rem;
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            text-align: center; min-height: 220px;
+            cursor: pointer; transition: all 0.3s;
+            background: linear-gradient(135deg, rgba(45,158,95,0.03), rgba(76,201,125,0.05));
+            position: relative; overflow: hidden;
+        }
+
+        .upload-zone:hover {
+            border-color: var(--green-bright);
+            background: linear-gradient(135deg, rgba(45,158,95,0.06), rgba(76,201,125,0.09));
+        }
+
+        .upload-zone.drag-over {
+            border-color: var(--green-bright);
+            background: var(--green-pale);
+            transform: scale(1.01);
+        }
+
+        .upload-icon-wrap {
+            width: 72px; height: 72px;
+            background: var(--green-pale); border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            margin-bottom: 1rem; transition: all 0.3s;
+        }
+
+        .upload-zone:hover .upload-icon-wrap { background: var(--green-dark); }
+        .upload-zone:hover .upload-icon-wrap i { color: var(--white); }
+
+        .upload-icon-wrap i { font-size: 1.8rem; color: var(--green-mid); transition: color 0.3s; }
+
+        .upload-main-text { font-family: 'Syne', sans-serif; font-weight: 600; color: var(--green-dark); margin-bottom: 4px; }
+        .upload-sub-text { font-size: 0.83rem; color: var(--text-light); }
+
+        #image-preview-wrap { display: none; width: 100%; }
+
+        #image-preview {
+            width: 100%; height: 200px;
+            object-fit: cover; border-radius: 12px;
+            margin-bottom: 0.75rem;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .preview-change-hint { font-size: 0.8rem; color: var(--green-mid); font-weight: 500; }
+
+        /* Error Box */
+        .error-box {
+            display: none; margin-top: 1rem;
+            background: #fff1f1; border-left: 3px solid #e53e3e;
+            border-radius: 8px; padding: 0.75rem 1rem;
+            font-size: 0.85rem; color: #c53030;
+        }
+
+        /* Scan Button */
+        .scan-btn {
+            width: 100%; margin-top: 1.25rem;
+            background: var(--green-dark); color: var(--white);
+            border: none; border-radius: 14px;
+            padding: 15px 24px; font-family: 'Syne', sans-serif;
+            font-weight: 700; font-size: 0.95rem; cursor: pointer;
+            display: flex; align-items: center; justify-content: center; gap: 10px;
+            transition: all 0.25s; box-shadow: 0 4px 18px rgba(10,61,31,0.2);
+        }
+
+        .scan-btn:disabled { opacity: 0.45; cursor: not-allowed; box-shadow: none; }
+        .scan-btn:not(:disabled):hover { background: var(--green-mid); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(10,61,31,0.28); }
+        .scan-btn:not(:disabled):active { transform: translateY(0); }
+
+        /* Tips bar */
+        .tips-bar {
+            display: flex; gap: 0.75rem; flex-wrap: wrap;
+            margin-top: 1.25rem;
+        }
+
+        .tip-chip {
+            display: flex; align-items: center; gap: 6px;
+            background: var(--cream); border: 1px solid var(--cream-dark);
+            border-radius: 20px; padding: 5px 12px;
+            font-size: 0.78rem; color: var(--text-mid);
+        }
+
+        .tip-chip i { font-size: 0.7rem; color: var(--green-bright); }
+
+        /* Results */
+        .results-card { position: relative; overflow: hidden; }
+
+        .loading-overlay {
+            display: none; position: absolute; inset: 0;
+            background: rgba(255,255,255,0.95); z-index: 10;
+            flex-direction: column; align-items: center; justify-content: center;
+            border-radius: 24px;
+        }
+
+        .loading-overlay.active { display: flex; }
+
+        .spinner-ring {
+            width: 60px; height: 60px;
+            border: 3px solid var(--cream-dark);
+            border-top-color: var(--green-bright);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin-bottom: 1rem;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .loading-text { font-family: 'Syne', sans-serif; font-weight: 600; color: var(--green-dark); font-size: 0.95rem; }
+        .loading-subtext { font-size: 0.8rem; color: var(--text-light); margin-top: 4px; animation: fadeBlink 1.5s infinite; }
+        @keyframes fadeBlink { 0%,100% { opacity: 0.5; } 50% { opacity: 1; } }
+
+        .empty-state {
+            display: flex; flex-direction: column; align-items: center;
+            justify-content: center; min-height: 300px;
+            text-align: center; color: var(--text-light);
+        }
+
+        .empty-icon-wrap {
+            width: 80px; height: 80px; background: var(--cream);
+            border-radius: 50%; display: flex; align-items: center;
+            justify-content: center; margin-bottom: 1rem; font-size: 2rem;
+            color: var(--cream-dark);
+        }
+
+        .empty-title { font-family: 'Syne', sans-serif; font-weight: 600; color: var(--text-mid); margin-bottom: 0.4rem; }
+        .empty-text { font-size: 0.85rem; max-width: 220px; line-height: 1.6; }
+
+        /* Result Display */
+        #results-display { display: none; animation: fadeUp 0.5s ease; }
+
+        .result-condition {
+            background: linear-gradient(135deg, var(--green-pale), #e0f7ed);
+            border-radius: 16px; padding: 1.25rem 1.5rem;
+            margin-bottom: 1.25rem; border: 1px solid rgba(45,158,95,0.2);
+        }
+
+        .result-condition-label { font-size: 0.72rem; font-weight: 500; color: var(--green-mid); text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 6px; }
+
+        .result-condition-name {
+            font-family: 'Syne', sans-serif; font-size: 1.6rem; font-weight: 800;
+            color: var(--green-dark); line-height: 1.2;
+        }
+
+        .result-confidence { margin-bottom: 1.25rem; }
+        .conf-meta { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+        .conf-label { font-size: 0.8rem; font-weight: 500; color: var(--text-mid); }
+        .conf-value { font-family: 'Syne', sans-serif; font-size: 0.95rem; font-weight: 700; color: var(--green-dark); }
+
+        .conf-track { height: 8px; background: var(--cream-dark); border-radius: 8px; overflow: hidden; }
+        .conf-fill-animated {
+            height: 100%; background: linear-gradient(90deg, var(--green-mid), var(--green-light));
+            border-radius: 8px; width: 0%; transition: width 1s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        .result-remedy {
+            background: #f0f6ff; border-radius: 16px;
+            padding: 1.25rem 1.5rem; border: 1px solid #c3d9f7;
+        }
+
+        .remedy-header {
+            display: flex; align-items: center; gap: 8px;
+            margin-bottom: 0.875rem;
+        }
+
+        .remedy-header-icon {
+            width: 28px; height: 28px; background: #dbeafe;
+            border-radius: 8px; display: flex; align-items: center;
+            justify-content: center; font-size: 0.8rem; color: #2563eb;
+        }
+
+        .remedy-header-text { font-size: 0.78rem; font-weight: 600; color: #1d4ed8; text-transform: uppercase; letter-spacing: 0.06em; }
+
+        #remedy-text {
+            font-size: 0.88rem; color: #1e3a5f;
+            line-height: 1.75; white-space: pre-wrap;
+        }
+
+        /* ─── FOOTER ─── */
+        footer {
+            background: var(--green-dark); color: rgba(255,255,255,0.7);
+            padding: 3rem 2rem; text-align: center;
+        }
+
+        .footer-brand { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.4rem; color: var(--white); margin-bottom: 0.5rem; }
+        .footer-text { font-size: 0.85rem; line-height: 1.7; max-width: 500px; margin: 0 auto 1.5rem; }
+        .footer-divider { height: 1px; background: rgba(255,255,255,0.1); max-width: 400px; margin: 1.5rem auto; }
+        .footer-copy { font-size: 0.8rem; opacity: 0.5; }
+
+        /* ─── RESPONSIVE ─── */
+        @media (max-width: 900px) {
+            .hero-inner { grid-template-columns: 1fr; gap: 3rem; }
+            .hero-visual { display: none; }
+            .features-grid { grid-template-columns: 1fr 1fr; }
+            .steps-grid { grid-template-columns: 1fr 1fr; }
+            .scanner-grid { grid-template-columns: 1fr; }
+        }
+
+        @media (max-width: 600px) {
+            .features-grid { grid-template-columns: 1fr; }
+            .steps-grid { grid-template-columns: 1fr; }
+            .steps-grid::before { display: none; }
+            .hero-stats { gap: 1.5rem; }
+            .nav-links { display: none; }
+        }
+
+        /* Scroll reveal */
+        .reveal {
+            opacity: 0; transform: translateY(28px);
+            transition: opacity 0.7s ease, transform 0.7s ease;
+        }
+        .reveal.visible { opacity: 1; transform: none; }
+        .reveal-delay-1 { transition-delay: 0.1s; }
+        .reveal-delay-2 { transition-delay: 0.2s; }
+        .reveal-delay-3 { transition-delay: 0.3s; }
+    </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+    <a href="#home" class="nav-brand">
+        <div class="leaf-icon"></div>
+        AgriDetect AI
+    </a>
+    <div class="nav-links">
+        <a href="#features">Features</a>
+        <a href="#how-it-works">How it works</a>
+        <a href="#crops">Crops</a>
+        <a href="#scanner" class="nav-cta">Launch Scanner</a>
+    </div>
+    <div class="cibrc-badge">
+        <i class="fa-solid fa-shield-halved" style="font-size:0.75rem;"></i>
+        CIBRC Integrated
+    </div>
+</nav>
+
+<!-- ═══════════ HOME ═══════════ -->
+<section id="home">
+    <div class="hero-bg"></div>
+    <div class="hero-pattern"></div>
+    <div class="hero-inner">
+        <div class="hero-left">
+            <div class="hero-tag">
+                <span class="dot"></span>
+                AI-Powered Crop Diagnostics
+            </div>
+            <h1 class="hero-title">
+                Detect crop disease<br>in <span class="accent">seconds.</span>
+            </h1>
+            <p class="hero-desc">
+                Upload a leaf photo and AgriDetect AI instantly identifies diseases, pests, and deficiencies — then gives you official CIBRC-verified pesticide recommendations tailored for Indian agriculture.
+            </p>
+            <div class="hero-actions">
+                <a href="#scanner" class="btn-primary">
+                    <i class="fa-solid fa-magnifying-glass-chart"></i>
+                    Scan a Leaf Now
+                </a>
+                <a href="#how-it-works" class="btn-secondary">
+                    <i class="fa-solid fa-circle-play"></i>
+                    See How It Works
+                </a>
+            </div>
+            <div class="hero-stats">
+                <div class="stat-item">
+                    <span class="stat-num">32+</span>
+                    <span class="stat-label">Disease Classes</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-num">99%</span>
+                    <span class="stat-label">Accuracy on Test Set</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-num">5</span>
+                    <span class="stat-label">Crops Supported</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="hero-visual">
+            <div class="phone-mockup">
+                <div class="mockup-header">
+                    <div class="mockup-dot" style="background:#ff5f57;"></div>
+                    <div class="mockup-dot" style="background:#febc2e;"></div>
+                    <div class="mockup-dot" style="background:#28c840;"></div>
+                    <span style="margin-left:8px; font-size:0.78rem; color:var(--text-light);">AgriDetect AI Scanner</span>
+                </div>
+                <div class="mockup-leaf-preview">
+                    <div class="mockup-leaf-icon">
+                        <i class="fa-solid fa-leaf"></i>
+                    </div>
+                    <span style="font-size:0.8rem;color:var(--green-mid);font-weight:500;">Sample: Cotton leaf detected</span>
+                </div>
+                <div class="mockup-result">
+                    <div class="mockup-result-label">Identified Condition</div>
+                    <div class="mockup-result-disease">Cotton Bacterial Blight</div>
+                </div>
+                <div class="mockup-confidence">
+                    <span style="font-size:0.75rem;color:var(--text-light);">Confidence</span>
+                    <div class="conf-bar"><div class="conf-fill"></div></div>
+                    <span style="font-weight:700;color:var(--green-dark);font-size:0.82rem;">99.8%</span>
+                </div>
+                <div class="mockup-remedy">
+                    <div class="mockup-remedy-label"><i class="fa-solid fa-prescription-bottle-medical"></i> Official Recommendation</div>
+                    <div class="mockup-remedy-text">Streptomycin Sulphate + Tetracycline HCl — 100g in 500L/ha. PHI: Check Label.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ═══════════ FEATURES ═══════════ -->
+<section id="features">
+    <div class="section-header">
+        <div class="section-tag">Why AgriDetect</div>
+        <h2 class="section-title">Built for the Indian farmer</h2>
+        <p class="section-desc">Every feature designed to give accurate, actionable, government-backed guidance in seconds.</p>
+    </div>
+    <div class="features-grid">
+        <div class="feature-card reveal">
+            <div class="feature-icon-wrap"><i class="fa-solid fa-bolt"></i></div>
+            <div class="feature-title">Instant Diagnosis</div>
+            <p class="feature-desc">Deep learning model classifies 32 disease types in under 2 seconds. No waiting, no guesswork.</p>
+        </div>
+        <div class="feature-card reveal reveal-delay-1">
+            <div class="feature-icon-wrap"><i class="fa-solid fa-shield-halved"></i></div>
+            <div class="feature-title">CIBRC-Verified Remedies</div>
+            <p class="feature-desc">Every pesticide recommendation is sourced directly from the Central Insecticides Board & Registration Committee.</p>
+        </div>
+        <div class="feature-card reveal reveal-delay-2">
+            <div class="feature-icon-wrap"><i class="fa-solid fa-percent"></i></div>
+            <div class="feature-title">Confidence Scoring</div>
+            <p class="feature-desc">The AI tells you how confident it is. Below 70%? It asks for a clearer photo rather than risk a bad recommendation.</p>
+        </div>
+        <div class="feature-card reveal">
+            <div class="feature-icon-wrap"><i class="fa-solid fa-seedling"></i></div>
+            <div class="feature-title">5 Major Crops</div>
+            <p class="feature-desc">Covers Rice, Maize, Cotton, Tomato, Potato and Pepper — the most economically vital crops in India.</p>
+        </div>
+        <div class="feature-card reveal reveal-delay-1">
+            <div class="feature-icon-wrap"><i class="fa-solid fa-flask"></i></div>
+            <div class="feature-title">Dosage & PHI Info</div>
+            <p class="feature-desc">Every recommendation includes exact mixing dosage and Pre-Harvest Interval for safe application.</p>
+        </div>
+        <div class="feature-card reveal reveal-delay-2">
+            <div class="feature-icon-wrap"><i class="fa-solid fa-heart-pulse"></i></div>
+            <div class="feature-title">Healthy Leaf Detection</div>
+            <p class="feature-desc">If your crop is healthy, the tool says so clearly — saving you money on unnecessary chemical sprays.</p>
+        </div>
+    </div>
+</section>
+
+<!-- ═══════════ HOW IT WORKS ═══════════ -->
+<section id="how-it-works">
+    <div class="how-inner">
+        <div class="section-header">
+            <div class="section-tag">Process</div>
+            <h2 class="section-title" style="color:var(--white);">Four steps to a diagnosis</h2>
+            <p class="section-desc">From photo to prescription in under 10 seconds.</p>
+        </div>
+        <div class="steps-grid">
+            <div class="step-card reveal">
+                <div class="step-num">01</div>
+                <div class="step-icon"><i class="fa-solid fa-camera"></i></div>
+                <div class="step-title">Take a Photo</div>
+                <p class="step-desc">Photograph a single leaf clearly, in natural daylight. Ensure the affected area is visible.</p>
+            </div>
+            <div class="step-card reveal reveal-delay-1">
+                <div class="step-num">02</div>
+                <div class="step-icon"><i class="fa-solid fa-upload"></i></div>
+                <div class="step-title">Upload Image</div>
+                <p class="step-desc">Drag &amp; drop or click to upload your JPG or PNG leaf photo into the scanner below.</p>
+            </div>
+            <div class="step-card reveal reveal-delay-2">
+                <div class="step-num">03</div>
+                <div class="step-icon"><i class="fa-solid fa-microchip"></i></div>
+                <div class="step-title">AI Analysis</div>
+                <p class="step-desc">Our TensorFlow model analyzes the image pixel-by-pixel against 32 disease signatures.</p>
+            </div>
+            <div class="step-card reveal reveal-delay-3">
+                <div class="step-num">04</div>
+                <div class="step-icon"><i class="fa-solid fa-file-prescription"></i></div>
+                <div class="step-title">Get Prescription</div>
+                <p class="step-desc">Receive the disease name, confidence score, and official CIBRC pesticide treatment plan.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ═══════════ CROPS ═══════════ -->
+<section id="crops">
+    <div class="section-header">
+        <div class="section-tag">Coverage</div>
+        <h2 class="section-title">Supported crops &amp; conditions</h2>
+        <p class="section-desc">AgriDetect is trained on 32 disease classes across 5 major crops — with healthy variants included.</p>
+    </div>
+    <div class="crops-flex reveal">
+        <div class="crop-pill"><span class="crop-icon">🌾</span> Rice — Bacterial Leaf Blight</div>
+        <div class="crop-pill"><span class="crop-icon">🌾</span> Rice — Brown Spot</div>
+        <div class="crop-pill"><span class="crop-icon">🌾</span> Rice — Leaf Blast</div>
+        <div class="crop-pill"><span class="crop-icon">🌾</span> Rice — Leaf Scald</div>
+        <div class="crop-pill"><span class="crop-icon">🌾</span> Rice — Sheath Blight</div>
+        <div class="crop-pill"><span class="crop-icon">🌽</span> Maize — Blight</div>
+        <div class="crop-pill"><span class="crop-icon">🌽</span> Maize — Common Rust</div>
+        <div class="crop-pill"><span class="crop-icon">🌽</span> Maize — Gray Leaf Spot</div>
+        <div class="crop-pill"><span class="crop-icon">🌿</span> Cotton — Bacterial Blight</div>
+        <div class="crop-pill"><span class="crop-icon">🌿</span> Cotton — Curl Virus</div>
+        <div class="crop-pill"><span class="crop-icon">🌿</span> Cotton — Leaf Hopper Jassids</div>
+        <div class="crop-pill"><span class="crop-icon">🍅</span> Tomato — Early Blight</div>
+        <div class="crop-pill"><span class="crop-icon">🍅</span> Tomato — Late Blight</div>
+        <div class="crop-pill"><span class="crop-icon">🍅</span> Tomato — Leaf Mold</div>
+        <div class="crop-pill"><span class="crop-icon">🍅</span> Tomato — Septoria Leaf Spot</div>
+        <div class="crop-pill"><span class="crop-icon">🥔</span> Potato — Early Blight</div>
+        <div class="crop-pill"><span class="crop-icon">🥔</span> Potato — Late Blight</div>
+        <div class="crop-pill"><span class="crop-icon">🫑</span> Pepper — Bacterial Spot</div>
+        <div class="crop-pill" style="background:var(--green-pale);border-color:rgba(45,158,95,0.3);color:var(--green-dark);"><span class="crop-icon">✅</span> + Healthy variants</div>
+    </div>
+</section>
+
+<!-- ═══════════ SCANNER ═══════════ -->
+<section id="scanner">
+    <div class="scanner-inner">
+        <div class="section-header reveal">
+            <div class="section-tag">Scanner</div>
+            <h2 class="section-title">Diagnose your crop</h2>
+            <p class="section-desc">Upload a clear, well-lit photo of a single leaf. The AI will do the rest.</p>
+        </div>
+
+        <div class="scanner-grid">
+            <!-- LEFT: Upload -->
+            <div class="card reveal">
+                <div class="card-title">
+                    <i class="fa-solid fa-image"></i>
+                    Upload Leaf Image
+                </div>
+
+                <div class="upload-zone" id="upload-zone"
+                     onclick="document.getElementById('file-input').click()"
+                     ondragover="handleDragOver(event)"
+                     ondragleave="handleDragLeave(event)"
+                     ondrop="handleDrop(event)">
+
+                    <div id="image-preview-wrap">
+                        <img id="image-preview" src="" alt="Leaf preview">
+                        <div class="preview-change-hint"><i class="fa-solid fa-rotate"></i> Click to change image</div>
+                    </div>
+
+                    <div id="upload-placeholder">
+                        <div class="upload-icon-wrap">
+                            <i class="fa-solid fa-cloud-arrow-up"></i>
+                        </div>
+                        <div class="upload-main-text">Click or drag &amp; drop</div>
+                        <div class="upload-sub-text">JPG, PNG supported</div>
+                    </div>
+
+                    <input type="file" id="file-input" style="display:none;" accept="image/*" onchange="previewImage(event)">
+                </div>
+
+                <div class="error-box" id="error-box">
+                    <i class="fa-solid fa-circle-exclamation"></i>
+                    <span id="error-text"></span>
+                </div>
+
+                <button class="scan-btn" id="scan-btn" onclick="analyzeCrop()" disabled>
+                    <i class="fa-solid fa-magnifying-glass-chart"></i>
+                    Analyze Crop
+                </button>
+
+                <div class="tips-bar">
+                    <div class="tip-chip"><i class="fa-solid fa-check"></i> Single leaf</div>
+                    <div class="tip-chip"><i class="fa-solid fa-check"></i> Good lighting</div>
+                    <div class="tip-chip"><i class="fa-solid fa-check"></i> Show affected area</div>
+                    <div class="tip-chip"><i class="fa-solid fa-check"></i> Avoid blur</div>
+                </div>
+            </div>
+
+            <!-- RIGHT: Results -->
+            <div class="card results-card reveal reveal-delay-1">
+                <div class="card-title">
+                    <i class="fa-solid fa-microscope"></i>
+                    Diagnostic Results
+                </div>
+
+                <!-- Loading -->
+                <div class="loading-overlay" id="loading-overlay">
+                    <div class="spinner-ring"></div>
+                    <div class="loading-text">Analyzing leaf pixels…</div>
+                    <div class="loading-subtext">Scanning 32 disease signatures</div>
+                </div>
+
+                <!-- Empty State -->
+                <div class="empty-state" id="empty-state">
+                    <div class="empty-icon-wrap"><i class="fa-solid fa-microscope"></i></div>
+                    <div class="empty-title">No diagnosis yet</div>
+                    <p class="empty-text">Upload a leaf image and click "Analyze Crop" to see results here.</p>
+                </div>
+
+                <!-- Results -->
+                <div id="results-display">
+                    <div class="result-condition">
+                        <div class="result-condition-label">Identified Condition</div>
+                        <div class="result-condition-name" id="disease-name">—</div>
+                    </div>
+
+                    <div class="result-confidence">
+                        <div class="conf-meta">
+                            <span class="conf-label">AI Confidence Score</span>
+                            <span class="conf-value" id="confidence-text">—</span>
+                        </div>
+                        <div class="conf-track">
+                            <div class="conf-fill-animated" id="confidence-bar"></div>
+                        </div>
+                    </div>
+
+                    <div class="result-remedy">
+                        <div class="remedy-header">
+                            <div class="remedy-header-icon">
+                                <i class="fa-solid fa-prescription-bottle-medical"></i>
+                            </div>
+                            <div class="remedy-header-text">Official CIBRC Recommendation</div>
+                        </div>
+                        <p id="remedy-text">Loading…</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+    <div class="footer-brand">
+        <i class="fa-solid fa-leaf" style="color:var(--green-light);margin-right:8px;"></i>
+        AgriDetect AI
+    </div>
+    <p class="footer-text">AI-powered crop disease diagnostics with official CIBRC pesticide recommendations for Indian agriculture.</p>
+    <div class="footer-divider"></div>
+    <p class="footer-copy">Built with TensorFlow · Recommendations sourced from CIBRC India · For advisory use only</p>
+</footer>
+
+<script>
+    /* ── Scroll Reveal ── */
+    const revealEls = document.querySelectorAll('.reveal');
+    const observer = new IntersectionObserver(entries => {
+        entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); } });
+    }, { threshold: 0.12 });
+    revealEls.forEach(el => observer.observe(el));
+
+    /* ── Upload Logic ── */
+    const fileInput = document.getElementById('file-input');
+    const scanBtn   = document.getElementById('scan-btn');
+    const errorBox  = document.getElementById('error-box');
+    const errorText = document.getElementById('error-text');
+
+    function previewImage(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = e => {
+            document.getElementById('image-preview').src = e.target.result;
+            document.getElementById('upload-placeholder').style.display = 'none';
+            document.getElementById('image-preview-wrap').style.display = 'block';
+            scanBtn.disabled = false;
+        };
+        reader.readAsDataURL(file);
+        hideError();
+    }
+
+    function handleDragOver(e) {
+        e.preventDefault();
+        document.getElementById('upload-zone').classList.add('drag-over');
+    }
+
+    function handleDragLeave(e) {
+        document.getElementById('upload-zone').classList.remove('drag-over');
+    }
+
+    function handleDrop(e) {
+        e.preventDefault();
+        document.getElementById('upload-zone').classList.remove('drag-over');
+        const file = e.dataTransfer.files[0];
+        if (file && file.type.startsWith('image/')) {
+            const dt = new DataTransfer();
+            dt.items.add(file);
+            fileInput.files = dt.files;
+            previewImage({ target: { files: [file] } });
+        }
+    }
+
+    function showError(msg) { errorText.textContent = msg; errorBox.style.display = 'block'; }
+    function hideError() { errorBox.style.display = 'none'; }
+
+    /* ── Main Analyze Function ── */
+    async function analyzeCrop() {
+        const file = fileInput.files[0];
+        if (!file) { showError('Please select a leaf image first.'); return; }
+        hideError();
+
+        document.getElementById('empty-state').style.display    = 'none';
+        document.getElementById('results-display').style.display = 'none';
+        document.getElementById('loading-overlay').classList.add('active');
+
+        scanBtn.disabled = true;
+        scanBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Analyzing…';
+
+        const formData = new FormData();
+        formData.append('file', file);
+
+        try {
+            const response = await fetch('http://127.0.0.1:8000/api/analyze-crop', {
+                method: 'POST', body: formData
+            });
+            const data = await response.json();
+            if (data.error) throw new Error(data.error);
+
+            document.getElementById('disease-name').textContent    = data.pest_name;
+            document.getElementById('confidence-text').textContent = data.confidence + '%';
+            document.getElementById('remedy-text').textContent     = data.pesticide_recommendation;
+
+            document.getElementById('loading-overlay').classList.remove('active');
+            document.getElementById('results-display').style.display = 'block';
+
+            setTimeout(() => {
+                document.getElementById('confidence-bar').style.width = data.confidence + '%';
+            }, 80);
+
+        } catch (err) {
+            console.error(err);
+            document.getElementById('loading-overlay').classList.remove('active');
+            document.getElementById('empty-state').style.display = 'flex';
+            showError("Couldn't reach the AI server. Make sure uvicorn is running on port 8000.");
+        } finally {
+            scanBtn.disabled = false;
+            scanBtn.innerHTML = '<i class="fa-solid fa-magnifying-glass-chart"></i> Analyze Crop';
+        }
+    }
+
+    /* ── Smooth scroll for nav links on mobile ── */
+    document.querySelectorAll('a[href^="#"]').forEach(a => {
+        a.addEventListener('click', e => {
+            e.preventDefault();
+            document.querySelector(a.getAttribute('href'))?.scrollIntoView({ behavior: 'smooth' });
+        });
+    });
+</script>
+</body>
+</html>
